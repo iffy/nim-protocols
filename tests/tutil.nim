@@ -3,6 +3,8 @@ import unittest
 import protocols
 import protocols/util
 
+assert TestSocket is SocketLike
+
 suite "TestSocket":
   test "concepts":
     var sock = newTestSocket()

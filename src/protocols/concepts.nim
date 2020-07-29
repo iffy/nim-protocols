@@ -29,13 +29,14 @@ export asyncnet
 type
   ## A Connectable lets you follow along as it
   ## becomes open (ready) and later closes.
-  Connectable* = concept x
+  Connectable* {.explain.} = concept x
     x.onOpen() is Future[void]
     x.hasOpened() is bool
     x.close() is Future[void]
     x.isClosed() is bool
     x.onClose() is Future[void]
   
+  ## Something resembling an AsyncSocket
   SocketLike* = concept x
     x.send(string) is Future[void]
     x.recv(int) is Future[string]
@@ -43,26 +44,23 @@ type
     x.isClosed() is bool
 
   SocketUser* = concept x
-    # TODO: Really, I'd like this to be
-    #   x.attachTo(SocketLike)
-    # but that doesn't seem to work
-    x.attachTo(AsyncSocket)
+    x.attachTo(SocketLike)
 
   #------------------------------------------------
 
   ## A StreamTransport sends/receives unframed bytes
   StreamTransport* = concept x
-    x is Connectable
+    x.conn is Connectable
     x.send(string) is Future[void]
     x.recv(int) is Future[string]
   
-  StreamUser* = concept x
+  StreamUser* {.explain.} = concept x
     x.attachTo(StreamTransport)
   
   #------------------------------------------------
   
-  MessageTransport* = concept x
-    x is Connectable
+  MessageTransport* {.explain.} = concept x
+    x.conn is Connectable
     x.sendMessage(string) is Future[void]
     x.recvMessage() is Future[string]
   
@@ -72,7 +70,7 @@ type
   #------------------------------------------------
 
   GenericTransport*[T] = concept x
-    x is Connectable
+    x.conn is Connectable
     x.send(T) is Future[void]
     x.recv() is Future[T]
   
