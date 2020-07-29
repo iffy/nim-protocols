@@ -1,4 +1,4 @@
-{.experimental: "codeReordering" .}
+{.experimental: "codeReordering".}
 
 import ./concepts
 import strutils
@@ -10,6 +10,12 @@ type
     fut: Future[string]
     size: int
 
+  ## A TestSocket can be used in place of a real AsyncSocket
+  ## in tests.
+  ## 
+  ## Simulate being the remote side with `put()` and `sent`/`sendCalls`
+  ## 
+  ## Or connect two together with `connect()`
   TestSocket* = ref object
     sendCalls*: seq[string]
     pending*: string
@@ -36,6 +42,7 @@ proc pump(s: var TestSocket) =
       break
 
 proc send*(s: var TestSocket, data: string): Future[void] =
+  ## Send data through the socket.
   result = newFuture[void]("TestSocket.send " & data)
   if s.closed:
     result.fail(newException(ValueError, "Cannot `send` on a closed Socket"))
@@ -62,8 +69,9 @@ proc recv*(s: var TestSocket, size: int): Future[string] =
     s.pump()
 
 proc close*(s: var TestSocket) =
+  ## Close this socket
   if s.closed:
-    return
+    raise newException(ValueError, "Cannot `close` a socket more than once")
   s.closed = true
   if s.remote.isSome():
     s.remote.get().closeRemote()
@@ -79,9 +87,11 @@ proc closeRemote*(s: var TestSocket) =
   s.pump()
 
 proc sent*(s: TestSocket): string {.inline.} =
+  ## See what has been sent on this socket
   s.sendCalls.join("")
 
 proc clearSent*(s: var TestSocket) {.inline.} =
+  ## Clear what has been sent on this socket
   s.sendCalls.setLen(0)
 
 proc put*(s: var TestSocket, data: string) =

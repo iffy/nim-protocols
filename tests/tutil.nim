@@ -76,6 +76,8 @@ suite "TestSocket":
     check s.failed
     let r = sock.recv(12)
     check r.failed
+    expect ValueError:
+      sock.close()
   
   test "connect two test sockets together":
     var client = newTestSocket()

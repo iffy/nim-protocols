@@ -33,7 +33,6 @@ type
     x.onOpen() is Future[void]
     x.hasOpened() is bool
     x.close() is Future[void]
-    x.startedClosing() is bool
     x.isClosed() is bool
     x.onClose() is Future[void]
   
@@ -44,7 +43,10 @@ type
     x.isClosed() is bool
 
   SocketUser* = concept x
-    x.attachTo(SocketLike)
+    # TODO: Really, I'd like this to be
+    #   x.attachTo(SocketLike)
+    # but that doesn't seem to work
+    x.attachTo(AsyncSocket)
 
   #------------------------------------------------
 
