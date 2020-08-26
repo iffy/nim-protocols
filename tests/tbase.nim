@@ -4,22 +4,18 @@ import protocols
 import protocols/base
 import protocols/util
 
-assert Connection is Connectable
-assert StringSocket[AsyncSocket] is StreamTransport
-
 proc `====`(message:string) {.inline.} =
   checkpoint "==== " & message
 
-suite "StringSocket":
+suite "StreamSocket":
   test "concepts":
-    var ss = newStringSocket[AsyncSocket]()
-    check ss is StreamTransport
-    # check ss is SocketUser
-    check ss.conn is Connectable
+    var ss = newStreamSocket[AsyncSocket]()
+    assertConcept(StreamProvider, ss)
+    assertConcept(SocketConsumer, ss)
   
   test "lifecycle":
     ==== "init"
-    var ss = newStringSocket[TestSocket]()
+    var ss = newStreamSocket[MemorySocket]()
     check ss.conn.hasOpened == false
     check ss.conn.isClosed == false
     let openp = ss.conn.onOpen()
@@ -28,7 +24,7 @@ suite "StringSocket":
     check onclosep.finished == false
 
     ==== "attach"
-    var sock = newTestSocket()
+    var sock = newMemorySocket()
     ss.attachTo(sock)
     check ss.conn.hasOpened
     check openp.finished
@@ -38,23 +34,22 @@ suite "StringSocket":
     check sendp.finished
     check sock.sent == "somedata"
 
-    ==== "recv"
-    let recvp = ss.recv(5)
-    check recvp.finished == false
+    ==== "read"
+    let readp = ss.read(5)
+    check readp.finished == false
     sock.put("apples")
-    check recvp.finished
-    check recvp.read() == "apple"
+    check readp.finished
+    check readp.read() == "apple"
     check sock.pending == "s"
 
     ==== "close"
-    let closep = ss.conn.close()
+    ss.conn.close()
     check ss.conn.isClosed
-    check closep.finished
     check onclosep.finished
   
   test "detect close on eof":
-    var sock = newTestSocket()
-    var ss = newStringSocket[TestSocket]()
+    var sock = newMemorySocket()
+    var ss = newStreamSocket[MemorySocket]()
     ss.attachTo(sock)
     let closep = ss.conn.onClose()
     check closep.finished == false
@@ -63,21 +58,20 @@ suite "StringSocket":
     check closep.finished == false
     check ss.conn.isClosed == false
 
-    let recvp = ss.recv(5)
-    check recvp.finished
-    check recvp.read() == ""
+    let readp = ss.read(5)
+    check readp.finished
+    check readp.read() == ""
     check closep.finished
     check ss.conn.isClosed
   
-  test "send/recv after close":
-    var sock = newTestSocket()
-    var ss = newStringSocket[TestSocket]()
+  test "send/read after close":
+    var sock = newMemorySocket()
+    var ss = newStreamSocket[MemorySocket]()
     ss.attachTo(sock)
-    let closep = ss.conn.close()
-    check closep.finished
+    ss.conn.close()
 
     check ss.send("something").failed
-    check ss.recv(5).failed
+    check ss.read(5).failed
 
 suite "Connection":
 
@@ -92,14 +86,25 @@ suite "Connection":
     check conn.onOpen.finished
     check conn.hasOpened
 
-    check conn.close().finished
+    conn.close()
     check conn.isClosed
     check conn.onClose.finished
+  
+  test "onClose isClosed in callback":
+    proc stuff() =
+      var conn = newConnection()
+      conn.open()
+
+      conn.onClose.addCallback proc() {.gcsafe.} =
+        assert conn.isClosed() == true
+      conn.close()
+      check conn.isClosed() == true
+    stuff()
 
   test "attachTo":
     var parent = newConnection()
     var child = newConnection()
-    child.attachTo(parent)
+    child.follow(parent)
     check not child.hasOpened
     check not parent.hasOpened
     check not child.isClosed
@@ -108,7 +113,7 @@ suite "Connection":
   test "child opens when parent opens":
     var parent = newConnection()
     var child = newConnection()
-    child.attachTo(parent)
+    child.follow(parent)
 
     parent.open()
     check child.hasOpened
@@ -117,27 +122,27 @@ suite "Connection":
   test "child closes when parent closes":
     var parent = newConnection()
     var child = newConnection()
-    child.attachTo(parent)
+    child.follow(parent)
 
     parent.open()
-    asyncCheck parent.close()
+    parent.close()
     check child.isClosed
     check parent.isClosed
   
   test "parent closes when child closes":
     var parent = newConnection()
     var child = newConnection()
-    child.attachTo(parent)
+    child.follow(parent)
 
     parent.open()
-    asyncCheck child.close()
+    child.close()
     check child.isClosed
     check parent.isClosed
   
   test "child ignores parent open":
     var parent = newConnection()
     var child = newConnection()
-    child.attachTo(parent, followOpen = false)
+    child.follow(parent, followOpen = false)
 
     parent.open()
     check parent.hasOpened
@@ -146,10 +151,10 @@ suite "Connection":
   test "child ignores parent close":
     var parent = newConnection()
     var child = newConnection()
-    child.attachTo(parent, followClose = false)
+    child.follow(parent, followClose = false)
 
     parent.open()
-    asyncCheck parent.close()
+    parent.close()
     check parent.isClosed
     check not child.isClosed
 
@@ -157,12 +162,12 @@ suite "Connection":
     var parent = newConnection()
     var child = newConnection()
     parent.open()
-    child.attachTo(parent)
+    child.follow(parent)
     check child.hasOpened
 
   test "attaching to already-open parent when not following":
     var parent = newConnection()
     var child = newConnection()
     parent.open()
-    child.attachTo(parent, followOpen = false)
+    child.follow(parent, followOpen = false)
     check not child.hasOpened

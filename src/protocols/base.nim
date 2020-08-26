@@ -1,5 +1,11 @@
-import ./concepts
 import options
+import asyncdispatch
+import asyncnet
+
+export asyncdispatch
+export asyncnet
+
+import ./concepts
 
 type
   ## A Connection doesn't handle data -- it just keeps
@@ -33,17 +39,17 @@ proc open*(conn: Connection) =
 proc isClosed*(conn: Connection): bool {.inline.} =
   conn.closed_fut.finished
 
-proc close*(conn: Connection): Future[void] {.async.} =
+proc close*(conn: Connection) =
   conn.closed_fut.complete()
   if conn.parent.isSome:
     var parent = conn.parent.get()
     if not parent.isClosed():
-      await parent.close()
+      parent.close()
 
 proc onClose*(conn: Connection): Future[void] {.inline.} =
   conn.closed_fut
 
-proc attachTo*(child: Connection, parent: var Connection, followOpen = true, followClose = true) =
+proc follow*(child: Connection, parent: var Connection, followOpen = true, followClose = true) =
   ## Make a child Connection follow a parent Connection
   ## 
   ## If `followOpen` is true (default), the child will open when the parent does
@@ -58,56 +64,32 @@ proc attachTo*(child: Connection, parent: var Connection, followOpen = true, fol
   if followClose:
     parent.onClose.addCallback proc() =
       if not child.isClosed:
-        asyncCheck child.close()
+        child.close()
 
 
 type
-  ## A StringSocket converts an AsyncSocket (or TestSocket)
-  ## into a composeable Transport.
-  StringSocket*[T:SocketLike] = ref object of RootObj
+  ## A StreamSocket converts a SocketProvider into a StreamProvider.
+  StreamSocket*[T: SocketProvider] = ref object of RootObj
     conn*: Connection
     child: Option[T]
 
-proc newStringSocket*[T](): StringSocket[T] =
+proc newStreamSocket*[T](): StreamSocket[T] =
   new(result)
   result.conn = newConnection()
   result.child = none[T]()
 
-# proc onOpen*(s: StringSocket): Future[void] {.inline.} =
-#   ## Returns a future that completes when this socket is
-#   ## ready for use.
-#   s.open_fut
-
-# proc hasOpened*(s: StringSocket): bool {.inline.} =
-#   s.open_fut.finished
-
-# proc isClosed*(s: StringSocket): bool {.inline.} =
-#   s.closed_fut.finished
-
-# proc close*(s: StringSocket): Future[void] =
-#   if s.child.isSome:
-#     var child = s.child.get()
-#     if not child.isClosed():
-#       child.close()
-#   s.closed_fut.complete()
-#   s.closed_fut
-
-# proc onClose*(s: StringSocket): Future[void] {.inline.} =
-#   s.closed_fut
-
-
-proc send*(s: StringSocket, data: string): Future[void] =
+proc send*(s: StreamSocket, data: string): Future[void] =
   if s.child.isSome:
     result = s.child.get().send(data)
 
-proc recv*(s: StringSocket, size: int): Future[string] {.async.} =
+proc read*(s: StreamSocket, size: int): Future[string] {.async.} =
   if s.child.isSome:
     var child = s.child.get()
     result = await child.recv(size)
     if result == "":
-      await s.conn.close()
+      s.conn.close()
 
-proc attachTo*[T](s: StringSocket, child: var T) =
+proc attachTo*[T](s: StreamSocket[T], child: T) =
   s.child = some(child)
   s.conn.onClose.addCallback proc() =
     if s.child.isSome:

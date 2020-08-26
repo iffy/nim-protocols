@@ -11,3 +11,7 @@ srcDir        = "src"
 # Dependencies
 
 requires "nim >= 1.0.6"
+
+task docs, "Build the docs":
+  exec "nim doc2 --project --outdir:docs src/protocols.nim"
+    

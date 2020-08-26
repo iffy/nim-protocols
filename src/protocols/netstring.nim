@@ -1,5 +1,6 @@
-import ./concepts
 import ./base
+import ./concepts
+
 import options
 
 import deques
@@ -121,7 +122,7 @@ proc nextMessage*(p: var NetstringDecoder): string =
 
 
 type
-  NetstringTransport*[T:StreamTransport] = ref object of RootObj
+  NetstringTransport*[T:StreamProvider] = ref object of RootObj
     stream: Option[T]
     conn*: Connection
     decoder: NetstringDecoder
@@ -138,9 +139,9 @@ proc sendMessage*(t:NetstringTransport, msg: string): Future[void] =
   assert t.stream.isSome
   t.stream.get().send(msg.nsencode(t.decoder.terminalChar))
 
-proc recvMessage*(t:NetstringTransport): Future[string] {.async.} =
+proc readMessage*(t:NetstringTransport): Future[string] {.async.} =
   assert t.stream.isSome
-  let stream = t.stream.get()
+  var stream = t.stream.get()
   var fut = newFuture[void]("NetstringSocket.getMessage")
   if t.pending.isSome:
     # wait for the last getMessage call to finish
@@ -157,7 +158,7 @@ proc recvMessage*(t:NetstringTransport): Future[string] {.async.} =
 
   while not t.decoder.hasMessage():
     let toread = t.decoder.bytesToRead()
-    let data = stream.recv(toread)
+    let data = stream.read(toread)
     yield data
     if data.failed:
       fut.complete()
@@ -165,7 +166,7 @@ proc recvMessage*(t:NetstringTransport): Future[string] {.async.} =
     try:
       t.decoder.consume(data.read())
     except:
-      asyncCheck t.conn.close()
+      t.conn.close()
       fut.complete()
       raise
   result = t.decoder.nextMessage()
@@ -173,4 +174,4 @@ proc recvMessage*(t:NetstringTransport): Future[string] {.async.} =
 
 proc attachTo*[T](t:NetstringTransport[T], transport: T) =
   t.stream = some(transport)
-  t.conn.attachTo(transport.conn)
+  t.conn.follow(transport.conn)

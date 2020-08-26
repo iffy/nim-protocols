@@ -3,15 +3,13 @@ import unittest
 import protocols
 import protocols/util
 
-assert TestSocket is SocketLike
-
-suite "TestSocket":
+suite "MemorySocket":
   test "concepts":
-    var sock = newTestSocket()
-    check sock is SocketLike
+    var sock = newMemorySocket()
+    assertConcept(SocketProvider, sock)
 
   test "works":
-    var sock = newTestSocket()
+    var sock = newMemorySocket()
     check sock.isClosed() == false
 
     checkpoint "send 2 pieces of data"
@@ -57,7 +55,7 @@ suite "TestSocket":
     check sock.isClosed() == true
   
   test "closeRemote before done putting":
-    var sock = newTestSocket()
+    var sock = newMemorySocket()
     let p = sock.recv(5)
     sock.put("app")
     sock.closeRemote()
@@ -72,7 +70,7 @@ suite "TestSocket":
   test "send/recv on closed":
     # this mimics what real AsyncSockets do when 
     # you attempt to send/recv after close()
-    var sock = newTestSocket()
+    var sock = newMemorySocket()
     sock.close()
     let s = sock.send("somedata")
     check s.failed
@@ -82,8 +80,8 @@ suite "TestSocket":
       sock.close()
   
   test "connect two test sockets together":
-    var client = newTestSocket()
-    var server = newTestSocket()
+    var client = newMemorySocket()
+    var server = newMemorySocket()
     connect(client, server)
 
     check client.isClosed() == false
@@ -116,4 +114,54 @@ suite "TestSocket":
     check client.isClosed() == false
 
 
+suite "MemoryStream":
+  test "concepts":
+    var s = newMemoryStream()
+    assertConcept(StreamProvider, s)
 
+  test "basic":
+    var s = newMemoryStream()
+    check s.conn.isClosed == false
+    check s.conn.hasOpened == true
+    check s.sent == ""
+    check s.sendCalls.len == 0
+
+    let s1 = s.send("foo")
+    let s2 = s.send("bar")
+    check s1.finished
+    check s2.finished
+    check s.sent == "foobar"
+    check s.sendCalls == @["foo", "bar"]
+
+    s.clearSent()
+    check s.sent == ""
+    check s.sendCalls.len == 0
+
+    let r1 = s.read(5)
+    check not r1.finished
+    
+    s.put("he")
+    check not r1.finished
+
+    s.put("llo")
+    check r1.finished
+    check r1.read() == "hello"
+
+  test "close before done putting":
+    var stream = newMemoryStream()
+    let p = stream.read(5)
+    stream.put("app")
+    stream.conn.close()
+    check p.finished() == true
+    check p.read() == "app"
+
+    let p2 = stream.read(10)
+    check p2.failed == true
+
+  test "send/read on closed":
+    var stream = newMemoryStream()
+    stream.conn.close()
+    let s = stream.send("somedata")
+    check s.failed
+    let r = stream.read(12)
+    check r.failed

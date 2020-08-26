@@ -1,7 +1,6 @@
 import unittest
 
 import protocols
-import protocols/concepts
 import protocols/netstring
 import protocols/util
 
@@ -92,98 +91,87 @@ suite "NetstringDecoder":
 
 suite "NetstringTransport":
 
-  # test "concepts":
-  #   check NetstringTransport is MessageTransport
-  #   check NetstringTransport is StreamUser
+  test "concepts":
+    var s = newNetstringTransport[MemoryStream]()
+    assertConcept(MessageProvider, s)
+    assertConcept(StreamConsumer, s)
 
-  test "recvMessage":
-    var sock = newTestSocket()
-    var ss = newStringSocket[TestSocket]()
-    ss.attachTo(sock)
-    var nss = newNetstringTransport[StringSocket[TestSocket]]()
+  test "readMessage":
+    var ss = newMemoryStream()
+    var nss = newNetstringTransport[MemoryStream]()
     nss.attachTo(ss)
 
-    var msg1 = nss.recvMessage()
-    var msg2 = nss.recvMessage()
-    var msg3 = nss.recvMessage()
+    var msg1 = nss.readMessage()
+    var msg2 = nss.readMessage()
+    var msg3 = nss.readMessage()
     check msg1.finished == false
     check msg2.finished == false
     check msg3.finished == false
 
-    sock.put("3:cat,")
+    ss.put("3:cat,")
     assert msg1.finished
     check msg1.read() == "cat"
     check msg2.finished == false
     
-    sock.put("2:a")
+    ss.put("2:a")
     check msg2.finished == false
     
-    sock.put("b,3:cow")
+    ss.put("b,3:cow")
     assert msg2.finished
     check msg2.read() == "ab"
     check msg3.finished == false
     
-    sock.put(",")
+    ss.put(",")
     assert msg3.finished
     check msg3.read() == "cow"
 
   test "sendMessage":
-    var sock = newTestSocket()
-    var ss = newStringSocket[TestSocket]()
-    ss.attachTo(sock)
-    var nss = newNetstringTransport[StringSocket[TestSocket]]()
+    var ss = newMemoryStream()
+    var nss = newNetstringTransport[MemoryStream]()
     nss.attachTo(ss)
 
     asyncCheck nss.sendMessage("hello")
     asyncCheck nss.sendMessage("cat")
-    check sock.sent == "5:hello,3:cat,"
+    check ss.sent == "5:hello,3:cat,"
 
   test "0-length":
-    var sock = newTestSocket()
-    var ss = newStringSocket[TestSocket]()
-    ss.attachTo(sock)
-    var nss = newNetstringTransport[StringSocket[TestSocket]]()
+    var ss = newMemoryStream()
+    var nss = newNetstringTransport[MemoryStream]()
     nss.attachTo(ss)
 
-    var msg1 = nss.recvMessage()
-    var msg2 = nss.recvMessage()
-    sock.put("0:,0:,")
+    var msg1 = nss.readMessage()
+    var msg2 = nss.readMessage()
+    ss.put("0:,0:,")
     assert msg1.finished
     assert msg2.finished
     check msg1.read == ""
     check msg2.read == ""
   
   test "connected":
-    var sock = newTestSocket()
-    var ss = newStringSocket[TestSocket]()
-    ss.attachTo(sock)
-    var nss = newNetstringTransport[StringSocket[TestSocket]]()
+    var ss = newMemoryStream()
+    var nss = newNetstringTransport[MemoryStream]()
     nss.attachTo(ss)
     check nss.conn.hasOpened
   
   test "disconnected":
-    var sock = newTestSocket()
-    var ss = newStringSocket[TestSocket]()
-    ss.attachTo(sock)
-    var nss = newNetstringTransport[StringSocket[TestSocket]]()
+    var ss = newMemoryStream()
+    var nss = newNetstringTransport[MemoryStream]()
     nss.attachTo(ss)
-    var msg1 = nss.recvMessage()
-    var msg2 = nss.recvMessage()
-    var msg3 = nss.recvMessage()
+    var msg1 = nss.readMessage()
+    var msg2 = nss.readMessage()
+    var msg3 = nss.readMessage()
     check nss.conn.onClose.finished == false
-    sock.closeRemote()
+    ss.conn.close()
     check nss.conn.onClose.finished
     check msg1.failed
     check msg2.failed
     check msg3.failed
   
   test "invalid message":
-    var sock = newTestSocket()
-    var ss = newStringSocket[TestSocket]()
-    ss.attachTo(sock)
-    var nss = newNetstringTransport[StringSocket[TestSocket]]()
+    var ss = newMemoryStream()
+    var nss = newNetstringTransport[MemoryStream]()
     nss.attachTo(ss)
-    var msg1 = nss.recvMessage()
-    sock.put("garbage ")
+    var msg1 = nss.readMessage()
+    ss.put("garbage ")
     check nss.conn.onClose.finished
     check msg1.failed

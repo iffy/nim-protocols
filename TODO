@@ -1,0 +1,4 @@
+[ ] Figure out the best way to provide the remote address for sockets.
+    For IPv4 TCP sockets, that would be the ip/hostname and port.
+    For UNIX domain sockets, it would be the path
+    TLS will need access to this information for certificate verification. 
