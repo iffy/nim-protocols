@@ -77,6 +77,7 @@ suite "Connection":
 
   test "basic":
     var conn = newConnection()
+    assertConcept(IConnection, conn)
     check conn.onOpen.finished == false
     check conn.hasOpened == false
     check conn.isClosed == false

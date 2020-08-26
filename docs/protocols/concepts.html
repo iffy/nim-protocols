@@ -100,50 +100,82 @@ function main() {
 <li>
   <a class="reference reference-toplevel" href="#7" id="57">Types</a>
   <ul class="simple simple-toc-section">
-      <li><a class="reference" href="#Connectable"
-    title="Connectable {.explain.} = concept x
-    ## A Connectable lets you follow along as it
+      <li><a class="reference" href="#IConnection"
+    title="IConnection = concept x
+    ## IConnection lets you follow along as it
     ## becomes open (ready) and later closes.
     x.onOpen() is Future[void]
     x.hasOpened() is bool
-    x.close() is Future[void]
+    x.close()
     x.isClosed() is bool
-    x.onClose() is Future[void]"><wbr />Connectable<span class="attachedType"></span></a></li>
-  <li><a class="reference" href="#SocketLike"
-    title="SocketLike = concept x
-    ## Something resembling an AsyncSocket enough
-    ## to be used in a StringSocket
+    x.onClose() is Future[void]"><wbr />IConnection<span class="attachedType"></span></a></li>
+  <li><a class="reference" href="#Connectable"
+    title="Connectable = concept x
+    x.conn is IConnection"><wbr />Connectable<span class="attachedType"></span></a></li>
+  <li><a class="reference" href="#ReadTransport"
+    title="ReadTransport = concept x
+    x.conn is IConnection
+    x.read(int) is Future[string]"><wbr />Read<wbr />Transport<span class="attachedType"></span></a></li>
+  <li><a class="reference" href="#WriteTransport"
+    title="WriteTransport = concept x
+    x.conn is IConnection
+    x.send(string) is Future[void]"><wbr />Write<wbr />Transport<span class="attachedType"></span></a></li>
+  <li><a class="reference" href="#ReadMessageTransport"
+    title="ReadMessageTransport = concept x
+    x.conn is IConnection
+    x.readMessage() is Future[string]"><wbr />Read<wbr />Message<wbr />Transport<span class="attachedType"></span></a></li>
+  <li><a class="reference" href="#WriteMessageTransport"
+    title="WriteMessageTransport = concept x
+    x.conn is IConnection
+    x.sendMessage(string) is Future[void]"><wbr />Write<wbr />Message<wbr />Transport<span class="attachedType"></span></a></li>
+  <li><a class="reference" href="#ReadGenericTransport"
+    title="ReadGenericTransport[T] = concept x
+    x.conn is IConnection
+    x.read() is Future[T]"><wbr />Read<wbr />Generic<wbr />Transport<span class="attachedType"></span></a></li>
+  <li><a class="reference" href="#WriteGenericTransport"
+    title="WriteGenericTransport[T] = concept x
+    x.conn is IConnection
+    x.send(T) is Future[void]"><wbr />Write<wbr />Generic<wbr />Transport<span class="attachedType"></span></a></li>
+  <li><a class="reference" href="#StreamProvider"
+    title="StreamProvider = concept x
+    ## A StreamProvider sends/receives unframed bytes
+    x is ReadTransport
+    x is WriteTransport"><wbr />Stream<wbr />Provider<span class="attachedType"></span></a></li>
+  <li><a class="reference" href="#StreamConsumer"
+    title="StreamConsumer = concept x
+    x.attachTo(StreamProvider)"><wbr />Stream<wbr />Consumer<span class="attachedType"></span></a></li>
+  <li><a class="reference" href="#MessageProvider"
+    title="MessageProvider = concept x
+    x is ReadMessageTransport
+    x is WriteMessageTransport"><wbr />Message<wbr />Provider<span class="attachedType"></span></a></li>
+  <li><a class="reference" href="#MessageConsumer"
+    title="MessageConsumer = concept x
+    x.attachTo(MessageProvider)"><wbr />Message<wbr />Consumer<span class="attachedType"></span></a></li>
+  <li><a class="reference" href="#GenericProvider"
+    title="GenericProvider[T] = concept x
+    x is ReadGenericTransport[T]
+    x is WriteGenericTransport[T]"><wbr />Generic<wbr />Provider<span class="attachedType"></span></a></li>
+  <li><a class="reference" href="#GenericConsumer"
+    title="GenericConsumer[T] = concept x
+    x.attachTo(GenericProvider[T])"><wbr />Generic<wbr />Consumer<span class="attachedType"></span></a></li>
+  <li><a class="reference" href="#ISocket"
+    title="ISocket = concept x
+    ## Something resembling an AsyncSocket
     x.send(string) is Future[void]
     x.recv(int) is Future[string]
     x.close()
-    x.isClosed() is bool"><wbr />Socket<wbr />Like<span class="attachedType"></span></a></li>
-  <li><a class="reference" href="#SocketUser"
-    title="SocketUser = concept x
-    x.attachTo(SocketLike)"><wbr />Socket<wbr />User<span class="attachedType"></span></a></li>
-  <li><a class="reference" href="#StreamProvider"
-    title="StreamProvider = concept x
-    x.conn is Connectable
-    x.send(string) is Future[void]
-    x.recv(int) is Future[string]"><wbr />Stream<wbr />Provider<span class="attachedType"></span></a></li>
-  <li><a class="reference" href="#StreamUser"
-    title="StreamUser {.explain.} = concept x
-    x.attachTo(StreamProvider)"><wbr />Stream<wbr />User<span class="attachedType"></span></a></li>
-  <li><a class="reference" href="#MessageProvider"
-    title="MessageProvider {.explain.} = concept x
-    x.conn is Connectable
-    x.sendMessage(string) is Future[void]
-    x.recvMessage() is Future[string]"><wbr />Message<wbr />Provider<span class="attachedType"></span></a></li>
-  <li><a class="reference" href="#MessageUser"
-    title="MessageUser = concept x
-    x.attachTo(MessageProvider)"><wbr />Message<wbr />User<span class="attachedType"></span></a></li>
-  <li><a class="reference" href="#GenericProvider"
-    title="GenericProvider[T] = concept x
-    x.conn is Connectable
-    x.send(T) is Future[void]
-    x.recv() is Future[T]"><wbr />Generic<wbr />Provider<span class="attachedType"></span></a></li>
-  <li><a class="reference" href="#GenericUser"
-    title="GenericUser[T] = concept x
-    x.attachTo(T)"><wbr />Generic<wbr />User<span class="attachedType"></span></a></li>
+    x.isClosed() is bool"><wbr />ISocket<span class="attachedType"></span></a></li>
+  <li><a class="reference" href="#SocketConsumer"
+    title="SocketConsumer = concept var x
+    x.attachTo(ISocket)"><wbr />Socket<wbr />Consumer<span class="attachedType"></span></a></li>
+
+  </ul>
+</li>
+<li>
+  <a class="reference reference-toplevel" href="#18" id="68">Templates</a>
+  <ul class="simple simple-toc-section">
+      <li><a class="reference" href="#assertConcept.t%2Cuntyped%2Cuntyped"
+    title="assertConcept(con: untyped; instance: untyped): untyped"><wbr />assert<wbr />Concept<span class="attachedType"></span></a></li>
 
   </ul>
 </li>
@@ -154,17 +186,17 @@ function main() {
   <div class="nine columns" id="content">
   <div id="tocRoot"></div>
   
-  <p class="module-desc">This module defines concepts that let you build interchangeable, highly composable protocols.</p>
+  <p class="module-desc"></p>
   <div class="section" id="7">
 <h1><a class="toc-backref" href="#7">Types</a></h1>
 <dl class="item">
-<a id="Connectable"></a>
-<dt><pre><a href="concepts.html#Connectable"><span class="Identifier">Connectable</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">explain</span></span><span class="Other">.}</span></span> <span class="Other">=</span> <span class="Keyword">concept</span> <span class="Identifier">x</span>
-    <span class="Comment">## A Connectable lets you follow along as it</span>
+<a id="IConnection"></a>
+<dt><pre><a href="concepts.html#IConnection"><span class="Identifier">IConnection</span></a> <span class="Other">=</span> <span class="Keyword">concept</span> <span class="Identifier">x</span>
+    <span class="Comment">## IConnection lets you follow along as it</span>
     <span class="Comment">## becomes open (ready) and later closes.</span>
     <span class="Identifier">x</span><span class="Other">.</span><span class="Identifier">onOpen</span><span class="Other">(</span><span class="Other">)</span> <span class="Identifier">is</span> <span class="Identifier">Future</span><span class="Other">[</span><span class="Identifier">void</span><span class="Other">]</span>
     <span class="Identifier">x</span><span class="Other">.</span><span class="Identifier">hasOpened</span><span class="Other">(</span><span class="Other">)</span> <span class="Identifier">is</span> <span class="Identifier">bool</span>
-    <span class="Identifier">x</span><span class="Other">.</span><span class="Identifier">close</span><span class="Other">(</span><span class="Other">)</span> <span class="Identifier">is</span> <span class="Identifier">Future</span><span class="Other">[</span><span class="Identifier">void</span><span class="Other">]</span>
+    <span class="Identifier">x</span><span class="Other">.</span><span class="Identifier">close</span><span class="Other">(</span><span class="Other">)</span>
     <span class="Identifier">x</span><span class="Other">.</span><span class="Identifier">isClosed</span><span class="Other">(</span><span class="Other">)</span> <span class="Identifier">is</span> <span class="Identifier">bool</span>
     <span class="Identifier">x</span><span class="Other">.</span><span class="Identifier">onClose</span><span class="Other">(</span><span class="Other">)</span> <span class="Identifier">is</span> <span class="Identifier">Future</span><span class="Other">[</span><span class="Identifier">void</span><span class="Other">]</span></pre></dt>
 <dd>
@@ -172,10 +204,123 @@ function main() {
 
 
 </dd>
-<a id="SocketLike"></a>
-<dt><pre><a href="concepts.html#SocketLike"><span class="Identifier">SocketLike</span></a> <span class="Other">=</span> <span class="Keyword">concept</span> <span class="Identifier">x</span>
-    <span class="Comment">## Something resembling an AsyncSocket enough</span>
-    <span class="Comment">## to be used in a StringSocket</span>
+<a id="Connectable"></a>
+<dt><pre><a href="concepts.html#Connectable"><span class="Identifier">Connectable</span></a> <span class="Other">=</span> <span class="Keyword">concept</span> <span class="Identifier">x</span>
+    <span class="Identifier">x</span><span class="Other">.</span><span class="Identifier">conn</span> <span class="Identifier">is</span> <a href="concepts.html#IConnection"><span class="Identifier">IConnection</span></a></pre></dt>
+<dd>
+
+
+
+</dd>
+<a id="ReadTransport"></a>
+<dt><pre><a href="concepts.html#ReadTransport"><span class="Identifier">ReadTransport</span></a> <span class="Other">=</span> <span class="Keyword">concept</span> <span class="Identifier">x</span>
+    <span class="Identifier">x</span><span class="Other">.</span><span class="Identifier">conn</span> <span class="Identifier">is</span> <a href="concepts.html#IConnection"><span class="Identifier">IConnection</span></a>
+    <span class="Identifier">x</span><span class="Other">.</span><span class="Identifier">read</span><span class="Other">(</span><span class="Identifier">int</span><span class="Other">)</span> <span class="Identifier">is</span> <span class="Identifier">Future</span><span class="Other">[</span><span class="Identifier">string</span><span class="Other">]</span></pre></dt>
+<dd>
+
+
+
+</dd>
+<a id="WriteTransport"></a>
+<dt><pre><a href="concepts.html#WriteTransport"><span class="Identifier">WriteTransport</span></a> <span class="Other">=</span> <span class="Keyword">concept</span> <span class="Identifier">x</span>
+    <span class="Identifier">x</span><span class="Other">.</span><span class="Identifier">conn</span> <span class="Identifier">is</span> <a href="concepts.html#IConnection"><span class="Identifier">IConnection</span></a>
+    <span class="Identifier">x</span><span class="Other">.</span><span class="Identifier">send</span><span class="Other">(</span><span class="Identifier">string</span><span class="Other">)</span> <span class="Identifier">is</span> <span class="Identifier">Future</span><span class="Other">[</span><span class="Identifier">void</span><span class="Other">]</span></pre></dt>
+<dd>
+
+
+
+</dd>
+<a id="ReadMessageTransport"></a>
+<dt><pre><a href="concepts.html#ReadMessageTransport"><span class="Identifier">ReadMessageTransport</span></a> <span class="Other">=</span> <span class="Keyword">concept</span> <span class="Identifier">x</span>
+    <span class="Identifier">x</span><span class="Other">.</span><span class="Identifier">conn</span> <span class="Identifier">is</span> <a href="concepts.html#IConnection"><span class="Identifier">IConnection</span></a>
+    <span class="Identifier">x</span><span class="Other">.</span><span class="Identifier">readMessage</span><span class="Other">(</span><span class="Other">)</span> <span class="Identifier">is</span> <span class="Identifier">Future</span><span class="Other">[</span><span class="Identifier">string</span><span class="Other">]</span></pre></dt>
+<dd>
+
+
+
+</dd>
+<a id="WriteMessageTransport"></a>
+<dt><pre><a href="concepts.html#WriteMessageTransport"><span class="Identifier">WriteMessageTransport</span></a> <span class="Other">=</span> <span class="Keyword">concept</span> <span class="Identifier">x</span>
+    <span class="Identifier">x</span><span class="Other">.</span><span class="Identifier">conn</span> <span class="Identifier">is</span> <a href="concepts.html#IConnection"><span class="Identifier">IConnection</span></a>
+    <span class="Identifier">x</span><span class="Other">.</span><span class="Identifier">sendMessage</span><span class="Other">(</span><span class="Identifier">string</span><span class="Other">)</span> <span class="Identifier">is</span> <span class="Identifier">Future</span><span class="Other">[</span><span class="Identifier">void</span><span class="Other">]</span></pre></dt>
+<dd>
+
+
+
+</dd>
+<a id="ReadGenericTransport"></a>
+<dt><pre><a href="concepts.html#ReadGenericTransport"><span class="Identifier">ReadGenericTransport</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> <span class="Other">=</span> <span class="Keyword">concept</span> <span class="Identifier">x</span>
+    <span class="Identifier">x</span><span class="Other">.</span><span class="Identifier">conn</span> <span class="Identifier">is</span> <a href="concepts.html#IConnection"><span class="Identifier">IConnection</span></a>
+    <span class="Identifier">x</span><span class="Other">.</span><span class="Identifier">read</span><span class="Other">(</span><span class="Other">)</span> <span class="Identifier">is</span> <span class="Identifier">Future</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
+<dd>
+
+
+
+</dd>
+<a id="WriteGenericTransport"></a>
+<dt><pre><a href="concepts.html#WriteGenericTransport"><span class="Identifier">WriteGenericTransport</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> <span class="Other">=</span> <span class="Keyword">concept</span> <span class="Identifier">x</span>
+    <span class="Identifier">x</span><span class="Other">.</span><span class="Identifier">conn</span> <span class="Identifier">is</span> <a href="concepts.html#IConnection"><span class="Identifier">IConnection</span></a>
+    <span class="Identifier">x</span><span class="Other">.</span><span class="Identifier">send</span><span class="Other">(</span><span class="Identifier">T</span><span class="Other">)</span> <span class="Identifier">is</span> <span class="Identifier">Future</span><span class="Other">[</span><span class="Identifier">void</span><span class="Other">]</span></pre></dt>
+<dd>
+
+
+
+</dd>
+<a id="StreamProvider"></a>
+<dt><pre><a href="concepts.html#StreamProvider"><span class="Identifier">StreamProvider</span></a> <span class="Other">=</span> <span class="Keyword">concept</span> <span class="Identifier">x</span>
+    <span class="Comment">## A StreamProvider sends/receives unframed bytes</span>
+    <span class="Identifier">x</span> <span class="Identifier">is</span> <a href="concepts.html#ReadTransport"><span class="Identifier">ReadTransport</span></a>
+    <span class="Identifier">x</span> <span class="Identifier">is</span> <a href="concepts.html#WriteTransport"><span class="Identifier">WriteTransport</span></a></pre></dt>
+<dd>
+
+
+
+</dd>
+<a id="StreamConsumer"></a>
+<dt><pre><a href="concepts.html#StreamConsumer"><span class="Identifier">StreamConsumer</span></a> <span class="Other">=</span> <span class="Keyword">concept</span> <span class="Identifier">x</span>
+    <span class="Identifier">x</span><span class="Other">.</span><span class="Identifier">attachTo</span><span class="Other">(</span><a href="concepts.html#StreamProvider"><span class="Identifier">StreamProvider</span></a><span class="Other">)</span></pre></dt>
+<dd>
+
+
+
+</dd>
+<a id="MessageProvider"></a>
+<dt><pre><a href="concepts.html#MessageProvider"><span class="Identifier">MessageProvider</span></a> <span class="Other">=</span> <span class="Keyword">concept</span> <span class="Identifier">x</span>
+    <span class="Identifier">x</span> <span class="Identifier">is</span> <a href="concepts.html#ReadMessageTransport"><span class="Identifier">ReadMessageTransport</span></a>
+    <span class="Identifier">x</span> <span class="Identifier">is</span> <a href="concepts.html#WriteMessageTransport"><span class="Identifier">WriteMessageTransport</span></a></pre></dt>
+<dd>
+
+
+
+</dd>
+<a id="MessageConsumer"></a>
+<dt><pre><a href="concepts.html#MessageConsumer"><span class="Identifier">MessageConsumer</span></a> <span class="Other">=</span> <span class="Keyword">concept</span> <span class="Identifier">x</span>
+    <span class="Identifier">x</span><span class="Other">.</span><span class="Identifier">attachTo</span><span class="Other">(</span><a href="concepts.html#MessageProvider"><span class="Identifier">MessageProvider</span></a><span class="Other">)</span></pre></dt>
+<dd>
+
+
+
+</dd>
+<a id="GenericProvider"></a>
+<dt><pre><a href="concepts.html#GenericProvider"><span class="Identifier">GenericProvider</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> <span class="Other">=</span> <span class="Keyword">concept</span> <span class="Identifier">x</span>
+    <span class="Identifier">x</span> <span class="Identifier">is</span> <a href="concepts.html#ReadGenericTransport"><span class="Identifier">ReadGenericTransport</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span>
+    <span class="Identifier">x</span> <span class="Identifier">is</span> <a href="concepts.html#WriteGenericTransport"><span class="Identifier">WriteGenericTransport</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
+<dd>
+
+
+
+</dd>
+<a id="GenericConsumer"></a>
+<dt><pre><a href="concepts.html#GenericConsumer"><span class="Identifier">GenericConsumer</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> <span class="Other">=</span> <span class="Keyword">concept</span> <span class="Identifier">x</span>
+    <span class="Identifier">x</span><span class="Other">.</span><span class="Identifier">attachTo</span><span class="Other">(</span><a href="concepts.html#GenericProvider"><span class="Identifier">GenericProvider</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span></pre></dt>
+<dd>
+
+
+
+</dd>
+<a id="ISocket"></a>
+<dt><pre><a href="concepts.html#ISocket"><span class="Identifier">ISocket</span></a> <span class="Other">=</span> <span class="Keyword">concept</span> <span class="Identifier">x</span>
+    <span class="Comment">## Something resembling an AsyncSocket</span>
     <span class="Identifier">x</span><span class="Other">.</span><span class="Identifier">send</span><span class="Other">(</span><span class="Identifier">string</span><span class="Other">)</span> <span class="Identifier">is</span> <span class="Identifier">Future</span><span class="Other">[</span><span class="Identifier">void</span><span class="Other">]</span>
     <span class="Identifier">x</span><span class="Other">.</span><span class="Identifier">recv</span><span class="Other">(</span><span class="Identifier">int</span><span class="Other">)</span> <span class="Identifier">is</span> <span class="Identifier">Future</span><span class="Other">[</span><span class="Identifier">string</span><span class="Other">]</span>
     <span class="Identifier">x</span><span class="Other">.</span><span class="Identifier">close</span><span class="Other">(</span><span class="Other">)</span>
@@ -185,66 +330,24 @@ function main() {
 
 
 </dd>
-<a id="SocketUser"></a>
-<dt><pre><a href="concepts.html#SocketUser"><span class="Identifier">SocketUser</span></a> <span class="Other">=</span> <span class="Keyword">concept</span> <span class="Identifier">x</span>
-    <span class="Identifier">x</span><span class="Other">.</span><span class="Identifier">attachTo</span><span class="Other">(</span><a href="concepts.html#SocketLike"><span class="Identifier">SocketLike</span></a><span class="Other">)</span></pre></dt>
+<a id="SocketConsumer"></a>
+<dt><pre><a href="concepts.html#SocketConsumer"><span class="Identifier">SocketConsumer</span></a> <span class="Other">=</span> <span class="Keyword">concept</span> <span class="Keyword">var</span> <span class="Identifier">x</span>
+    <span class="Identifier">x</span><span class="Other">.</span><span class="Identifier">attachTo</span><span class="Other">(</span><a href="concepts.html#ISocket"><span class="Identifier">ISocket</span></a><span class="Other">)</span></pre></dt>
 <dd>
 
 
 
 </dd>
-<a id="StreamProvider"></a>
-<dt><pre><a href="concepts.html#StreamProvider"><span class="Identifier">StreamProvider</span></a> <span class="Other">=</span> <span class="Keyword">concept</span> <span class="Identifier">x</span>
-    <span class="Identifier">x</span><span class="Other">.</span><span class="Identifier">conn</span> <span class="Identifier">is</span> <a href="concepts.html#Connectable"><span class="Identifier">Connectable</span></a>
-    <span class="Identifier">x</span><span class="Other">.</span><span class="Identifier">send</span><span class="Other">(</span><span class="Identifier">string</span><span class="Other">)</span> <span class="Identifier">is</span> <span class="Identifier">Future</span><span class="Other">[</span><span class="Identifier">void</span><span class="Other">]</span>
-    <span class="Identifier">x</span><span class="Other">.</span><span class="Identifier">recv</span><span class="Other">(</span><span class="Identifier">int</span><span class="Other">)</span> <span class="Identifier">is</span> <span class="Identifier">Future</span><span class="Other">[</span><span class="Identifier">string</span><span class="Other">]</span></pre></dt>
+
+</dl></div>
+<div class="section" id="18">
+<h1><a class="toc-backref" href="#18">Templates</a></h1>
+<dl class="item">
+<a id="assertConcept.t,untyped,untyped"></a>
+<dt><pre><span class="Keyword">template</span> <a href="#assertConcept.t%2Cuntyped%2Cuntyped"><span class="Identifier">assertConcept</span></a><span class="Other">(</span><span class="Identifier">con</span><span class="Other">:</span> <span class="Identifier">untyped</span><span class="Other">;</span> <span class="Identifier">instance</span><span class="Other">:</span> <span class="Identifier">untyped</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">untyped</span></pre></dt>
 <dd>
 
-
-
-</dd>
-<a id="StreamUser"></a>
-<dt><pre><a href="concepts.html#StreamUser"><span class="Identifier">StreamUser</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">explain</span></span><span class="Other">.}</span></span> <span class="Other">=</span> <span class="Keyword">concept</span> <span class="Identifier">x</span>
-    <span class="Identifier">x</span><span class="Other">.</span><span class="Identifier">attachTo</span><span class="Other">(</span><a href="concepts.html#StreamProvider"><span class="Identifier">StreamProvider</span></a><span class="Other">)</span></pre></dt>
-<dd>
-
-
-
-</dd>
-<a id="MessageProvider"></a>
-<dt><pre><a href="concepts.html#MessageProvider"><span class="Identifier">MessageProvider</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">explain</span></span><span class="Other">.}</span></span> <span class="Other">=</span> <span class="Keyword">concept</span> <span class="Identifier">x</span>
-    <span class="Identifier">x</span><span class="Other">.</span><span class="Identifier">conn</span> <span class="Identifier">is</span> <a href="concepts.html#Connectable"><span class="Identifier">Connectable</span></a>
-    <span class="Identifier">x</span><span class="Other">.</span><span class="Identifier">sendMessage</span><span class="Other">(</span><span class="Identifier">string</span><span class="Other">)</span> <span class="Identifier">is</span> <span class="Identifier">Future</span><span class="Other">[</span><span class="Identifier">void</span><span class="Other">]</span>
-    <span class="Identifier">x</span><span class="Other">.</span><span class="Identifier">recvMessage</span><span class="Other">(</span><span class="Other">)</span> <span class="Identifier">is</span> <span class="Identifier">Future</span><span class="Other">[</span><span class="Identifier">string</span><span class="Other">]</span></pre></dt>
-<dd>
-
-
-
-</dd>
-<a id="MessageUser"></a>
-<dt><pre><a href="concepts.html#MessageUser"><span class="Identifier">MessageUser</span></a> <span class="Other">=</span> <span class="Keyword">concept</span> <span class="Identifier">x</span>
-    <span class="Identifier">x</span><span class="Other">.</span><span class="Identifier">attachTo</span><span class="Other">(</span><a href="concepts.html#MessageProvider"><span class="Identifier">MessageProvider</span></a><span class="Other">)</span></pre></dt>
-<dd>
-
-
-
-</dd>
-<a id="GenericProvider"></a>
-<dt><pre><a href="concepts.html#GenericProvider"><span class="Identifier">GenericProvider</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> <span class="Other">=</span> <span class="Keyword">concept</span> <span class="Identifier">x</span>
-    <span class="Identifier">x</span><span class="Other">.</span><span class="Identifier">conn</span> <span class="Identifier">is</span> <a href="concepts.html#Connectable"><span class="Identifier">Connectable</span></a>
-    <span class="Identifier">x</span><span class="Other">.</span><span class="Identifier">send</span><span class="Other">(</span><span class="Identifier">T</span><span class="Other">)</span> <span class="Identifier">is</span> <span class="Identifier">Future</span><span class="Other">[</span><span class="Identifier">void</span><span class="Other">]</span>
-    <span class="Identifier">x</span><span class="Other">.</span><span class="Identifier">recv</span><span class="Other">(</span><span class="Other">)</span> <span class="Identifier">is</span> <span class="Identifier">Future</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
-<dd>
-
-
-
-</dd>
-<a id="GenericUser"></a>
-<dt><pre><a href="concepts.html#GenericUser"><span class="Identifier">GenericUser</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> <span class="Other">=</span> <span class="Keyword">concept</span> <span class="Identifier">x</span>
-    <span class="Identifier">x</span><span class="Other">.</span><span class="Identifier">attachTo</span><span class="Other">(</span><span class="Identifier">T</span><span class="Other">)</span></pre></dt>
-<dd>
-
-
+Check if the given concept is fulfilled by the instance.
 
 </dd>
 
@@ -257,7 +360,7 @@ function main() {
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2020-07-30 19:56:23 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2020-08-26 20:38:10 UTC</small>
       </div>
     </div>
   </div>

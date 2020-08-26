@@ -68,8 +68,8 @@ proc follow*(child: Connection, parent: var Connection, followOpen = true, follo
 
 
 type
-  ## A StreamSocket converts a SocketProvider into a StreamProvider.
-  StreamSocket*[T: SocketProvider] = ref object of RootObj
+  ## A StreamSocket converts a ISocket into a StreamProvider.
+  StreamSocket*[T: ISocket] = ref object of RootObj
     conn*: Connection
     child: Option[T]
 

@@ -2,8 +2,8 @@ import asyncdispatch
 import asyncnet
 
 type
-  Connectable* = concept x
-    ## A Connectable lets you follow along as it
+  IConnection* = concept x
+    ## IConnection lets you follow along as it
     ## becomes open (ready) and later closes.
     x.onOpen() is Future[void]
     x.hasOpened() is bool
@@ -11,47 +11,40 @@ type
     x.isClosed() is bool
     x.onClose() is Future[void]
   
+  Connectable* = concept x
+    x.conn is IConnection
+  
   #------------------------------------------------
   # Readables and Writables
   #------------------------------------------------
-
-  StreamReadable* = concept x
+  ReadTransport* = concept x
+    x.conn is IConnection
     x.read(int) is Future[string]
-  StreamWriteable* = concept x
+  WriteTransport* = concept x
+    x.conn is IConnection
     x.send(string) is Future[void]
   
-  MessageReadable* = concept x
+  ReadMessageTransport* = concept x
+    x.conn is IConnection
     x.readMessage() is Future[string]
-  MessageWriteable* = concept x
+  WriteMessageTransport* = concept x
+    x.conn is IConnection
     x.sendMessage(string) is Future[void]
   
-  GenericReadable*[T] = concept x
+  ReadGenericTransport*[T] = concept x
+    x.conn is IConnection
     x.read() is Future[T]
-  GenericWriteable*[T] = concept x
+  WriteGenericTransport*[T] = concept x
+    x.conn is IConnection
     x.send(T) is Future[void]
-
-  #------------------------------------------------
-  # Sockets
-  #------------------------------------------------
-  SocketProvider* = concept x
-    ## Something resembling an AsyncSocket enough
-    ## to be used in a StringSocket
-    x.send(string) is Future[void]
-    x.recv(int) is Future[string]
-    x.close()
-    x.isClosed() is bool
-
-  SocketConsumer* = concept var x
-    x.attachTo(SocketProvider)
 
   #------------------------------------------------
   # Bidirectional providers and consumers
   #------------------------------------------------
   StreamProvider* = concept x
     ## A StreamProvider sends/receives unframed bytes
-    x.conn is Connectable
-    x is StreamReadable
-    x is StreamWriteable
+    x is ReadTransport
+    x is WriteTransport
   
   StreamConsumer* = concept x
     x.attachTo(StreamProvider)
@@ -59,9 +52,8 @@ type
   #------------------------------------------------
   
   MessageProvider* = concept x
-    x.conn is Connectable
-    x is MessageReadable
-    x is MessageWriteable
+    x is ReadMessageTransport
+    x is WriteMessageTransport
   
   MessageConsumer* = concept x
     x.attachTo(MessageProvider)
@@ -69,13 +61,23 @@ type
   #------------------------------------------------
 
   GenericProvider*[T] = concept x
-    x.conn is Connectable
-    x is GenericReadable[T]
-    x is GenericWriteable[T]
+    x is ReadGenericTransport[T]
+    x is WriteGenericTransport[T]
   
   GenericConsumer*[T] = concept x
     x.attachTo(GenericProvider[T])
 
+
+type
+  ISocket* = concept x
+    ## Something resembling an AsyncSocket
+    x.send(string) is Future[void]
+    x.recv(int) is Future[string]
+    x.close()
+    x.isClosed() is bool
+
+  SocketConsumer* = concept var x
+    x.attachTo(ISocket)
 
 template assertConcept*(con: untyped, instance: untyped): untyped =
   ## Check if the given concept is fulfilled by the instance.

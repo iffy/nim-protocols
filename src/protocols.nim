@@ -1,18 +1,19 @@
 ## This library provides concepts and implementations for 
 ## highly composeable network/data protocols.
 ## 
-## For instance, using these concepts, you can build a message-oriented
-## protocol that will work over any of these connections:
+## For instance, using these concepts, you can build a protocol that 
+## will work over any of these connections:
 ##
 ## * TCP socket
-## * HTTP client
-## * Websockets
-## * a Unix domain socket
+## * HTTP client (TODO)
+## * Websockets (TODO)
+## * a Unix domain socket (TODO)
+## * process stdin/stdout
 ## 
 ## Protocols may be chained together as well (e.g. to add encryption).
 ## 
 ## See `protocols/concepts <./protocols/concepts.html>`_ for the various
-## concepts defined herein.
+## concepts.
 ##
 ## For instance, the included ``util/MemorySocket`` is a ``SocketProvider`` that acts like an ``AsnycSocket``, but reads/writes from memory rather than over the network.  Any ``SocketConsumer`` can use a ``SocketProvider``.
 ## 

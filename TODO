@@ -1,5 +1,6 @@
 [ ] Add StreamProvider for stdio
 [ ] Add StreamProvider for Unix socket
+[X] Add StreamProvider for processes
 [ ] Figure out the best way to provide the remote address for sockets.
     For IPv4 TCP sockets, that would be the ip/hostname and port.
     For UNIX domain sockets, it would be the path

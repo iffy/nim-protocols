@@ -6,7 +6,7 @@ import protocols/util
 suite "MemorySocket":
   test "concepts":
     var sock = newMemorySocket()
-    assertConcept(SocketProvider, sock)
+    assertConcept(ISocket, sock)
 
   test "works":
     var sock = newMemorySocket()

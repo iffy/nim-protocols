@@ -97,9 +97,7 @@ function main() {
     </select>
   </div>
   <ul class="simple simple-toc" id="toc-list">
-<li><a class="reference" id="concepts_toc" href="#concepts">Concepts</a></li>
-<ul class="simple"><li><a class="reference" id="concepts-lifecycle_toc" href="#concepts-lifecycle">Lifecycle</a></li>
-</ul><li><a class="reference" id="utility-implementations_toc" href="#utility-implementations">Utility implementations</a></li>
+<li><a class="reference" id="lifecycle_toc" href="#lifecycle">Lifecycle</a></li>
 <li>
   <a class="reference reference-toplevel" href="#6" id="56">Imports</a>
   <ul class="simple simple-toc-section">
@@ -120,38 +118,32 @@ function main() {
   <div id="tocRoot"></div>
   
   <p class="module-desc"><p>This library provides concepts and implementations for highly composeable network/data protocols.</p>
-<p>For instance, you can build a message-oriented protocol then connect that protocol over a TCP socket, or an HTTP client, or Websockets, or a Unix domain socket.  You can chain protocols together (to add encryption, for instance).</p>
-
-<h1><a class="toc-backref" id="concepts" href="#concepts">Concepts</a></h1><p>There protocols that consume particular types of data and those that provide that type of data.  To that end, the different categories of consumers/providers are defined in <a class="reference external" href="./protocols/base.html">protocols/base</a>. In summary:</p>
-<ul class="simple"><li><tt class="docutils literal"><span class="pre">SocketProvider</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">SocketConsumer</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">StreamProvider</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">StreamConsumer</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">MessageProvider</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">MessageConsumer</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">GenericProvider[T]</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">GenericConsumer[T]</span></tt></li>
+<p>For instance, using these concepts, you can build a message-oriented protocol that will work over any of these connections:</p>
+<ul class="simple"><li>TCP socket</li>
+<li>HTTP client</li>
+<li>Websockets</li>
+<li>a Unix domain socket</li>
 </ul>
-<p>Some protocols are just Consumers. Some are just Providers. And some are both. Protocols adhering to these concepts can easily be hooked together.</p>
-<p>For instance, the included <tt class="docutils literal"><span class="pre">util/TestSocket</span></tt> is a <tt class="docutils literal"><span class="pre">SocketProvider</span></tt> that acts like a socket, but reads/writes from memory for use in testing.  Anything <tt class="docutils literal"><span class="pre">SocketConsumer</span></tt> can use a <tt class="docutils literal"><span class="pre">SocketProvider</span></tt>.</p>
+<p>Protocols may be chained together as well (e.g. to add encryption).</p>
+<p>See <a class="reference external" href="./protocols/concepts.html">protocols/concepts</a> for the various concepts defined herein.</p>
+<p>For instance, the included <tt class="docutils literal"><span class="pre">util/MemorySocket</span></tt> is a <tt class="docutils literal"><span class="pre">SocketProvider</span></tt> that acts like an <tt class="docutils literal"><span class="pre">AsnycSocket</span></tt>, but reads/writes from memory rather than over the network.  Any <tt class="docutils literal"><span class="pre">SocketConsumer</span></tt> can use a <tt class="docutils literal"><span class="pre">SocketProvider</span></tt>.</p>
 <p>The <tt class="docutils literal"><span class="pre">netstring/NetstringTransport</span></tt> is both a <tt class="docutils literal"><span class="pre">StreamConsumer</span></tt> and a <tt class="docutils literal"><span class="pre">MessageProvider</span></tt>. Attach it to any <tt class="docutils literal"><span class="pre">StreamProvider</span></tt> and attach any <tt class="docutils literal"><span class="pre">MessageConsumer</span></tt> to it.</p>
 
-<h2><a class="toc-backref" id="concepts-lifecycle" href="#concepts-lifecycle">Lifecycle</a></h2><p>Protocols have a common lifecycle as defined by <tt class="docutils literal"><span class="pre">base.Connectable</span></tt>.  In summary, the lifecycle is:</p>
+<h1><a class="toc-backref" id="lifecycle" href="#lifecycle">Lifecycle</a></h1><p>Protocols have a common lifecycle as defined by <tt class="docutils literal"><span class="pre">concept.Connectable</span></tt>.  In summary, the lifecycle is:</p>
 <ol class="simple"><li>Created</li>
 <li>Open and ready to send/receive data</li>
 <li>Closed</li>
 </ol>
-
-<h1><a class="toc-backref" id="utility-implementations" href="#utility-implementations">Utility implementations</a></h1></p>
+</p>
   <div class="section" id="6">
 <h1><a class="toc-backref" href="#6">Imports</a></h1>
 <dl class="item">
-<a class="reference external" href="protocols/base.html">protocols/base</a>
+<a class="reference external" href="protocols/concepts.html">protocols/concepts</a>, <a class="reference external" href="protocols/base.html">protocols/base</a>
 </dl></div>
 <div class="section" id="19">
 <h1><a class="toc-backref" href="#19">Exports</a></h1>
 <dl class="item">
-<a href="protocols/base.html#MessageConsumer"><span class="Identifier">MessageConsumer</span></a>, <a href="protocols/base.html#close"><span class="Identifier">close</span></a>, <a href="protocols/base.html#onClose"><span class="Identifier">onClose</span></a>, <a href="protocols/base.html#StreamProvider"><span class="Identifier">StreamProvider</span></a>, <a href="protocols/base.html#send"><span class="Identifier">send</span></a>, <a href="protocols/base.html#attachTo"><span class="Identifier">attachTo</span></a>, <a href="protocols/base.html#newStringSocket"><span class="Identifier">newStringSocket</span></a>, <a href="protocols/base.html#StreamConsumer"><span class="Identifier">StreamConsumer</span></a>, <a href="protocols/base.html#hasOpened"><span class="Identifier">hasOpened</span></a>, <a href="protocols/base.html#SocketProvider"><span class="Identifier">SocketProvider</span></a>, <a href="protocols/base.html#onOpen"><span class="Identifier">onOpen</span></a>, <a href="protocols/base.html#isClosed"><span class="Identifier">isClosed</span></a>, <a href="protocols/base.html#recv"><span class="Identifier">recv</span></a>, <a class="reference external" href="protocols/base.html">protocols/base</a>, <a href="protocols/base.html#MessageProvider"><span class="Identifier">MessageProvider</span></a>, <a href="protocols/base.html#StringSocket"><span class="Identifier">StringSocket</span></a>, <a href="protocols/base.html#attachTo"><span class="Identifier">attachTo</span></a>, <a href="protocols/base.html#newConnection"><span class="Identifier">newConnection</span></a>, <a href="protocols/base.html#Connection"><span class="Identifier">Connection</span></a>, <a href="protocols/base.html#GenericConsumer"><span class="Identifier">GenericConsumer</span></a>, <a href="protocols/base.html#GenericProvider"><span class="Identifier">GenericProvider</span></a>, <a href="protocols/base.html#SocketConsumer"><span class="Identifier">SocketConsumer</span></a>, <a href="protocols/base.html#open"><span class="Identifier">open</span></a>, <a href="protocols/base.html#Connectable"><span class="Identifier">Connectable</span></a>
+<a href="protocols/concepts.html#GenericConsumer"><span class="Identifier">GenericConsumer</span></a>, <a href="protocols/concepts.html#WriteGenericTransport"><span class="Identifier">WriteGenericTransport</span></a>, <a href="protocols/concepts.html#MessageConsumer"><span class="Identifier">MessageConsumer</span></a>, <a href="protocols/concepts.html#SocketConsumer"><span class="Identifier">SocketConsumer</span></a>, <a href="protocols/concepts.html#ReadGenericTransport"><span class="Identifier">ReadGenericTransport</span></a>, <a href="protocols/concepts.html#MessageProvider"><span class="Identifier">MessageProvider</span></a>, <a href="protocols/concepts.html#GenericProvider"><span class="Identifier">GenericProvider</span></a>, <a href="protocols/concepts.html#StreamProvider"><span class="Identifier">StreamProvider</span></a>, <a href="protocols/concepts.html#Connectable"><span class="Identifier">Connectable</span></a>, <a href="protocols/concepts.html#ReadTransport"><span class="Identifier">ReadTransport</span></a>, <a href="protocols/concepts.html#ReadMessageTransport"><span class="Identifier">ReadMessageTransport</span></a>, <a href="protocols/concepts.html#WriteMessageTransport"><span class="Identifier">WriteMessageTransport</span></a>, <a href="protocols/concepts.html#WriteTransport"><span class="Identifier">WriteTransport</span></a>, <a href="protocols/concepts.html#StreamConsumer"><span class="Identifier">StreamConsumer</span></a>, <a class="reference external" href="protocols/concepts.html">protocols/concepts</a>, <a href="protocols/concepts.html#ISocket"><span class="Identifier">ISocket</span></a>, <a href="protocols/concepts.html#assertConcept"><span class="Identifier">assertConcept</span></a>, <a href="protocols/concepts.html#IConnection"><span class="Identifier">IConnection</span></a>, <a href="protocols/base.html#close"><span class="Identifier">close</span></a>, <a href="protocols/base.html#follow"><span class="Identifier">follow</span></a>, <a href="protocols/base.html#onClose"><span class="Identifier">onClose</span></a>, <a href="protocols/base.html#send"><span class="Identifier">send</span></a>, <a href="protocols/base.html#hasOpened"><span class="Identifier">hasOpened</span></a>, <a href="protocols/base.html#onOpen"><span class="Identifier">onOpen</span></a>, <a href="protocols/base.html#isClosed"><span class="Identifier">isClosed</span></a>, <a class="reference external" href="protocols/base.html">protocols/base</a>, <a href="protocols/base.html#attachTo"><span class="Identifier">attachTo</span></a>, <a href="protocols/base.html#newConnection"><span class="Identifier">newConnection</span></a>, <a href="protocols/base.html#read"><span class="Identifier">read</span></a>, <a href="protocols/base.html#Connection"><span class="Identifier">Connection</span></a>, <a href="protocols/base.html#newStreamSocket"><span class="Identifier">newStreamSocket</span></a>, <a href="protocols/base.html#open"><span class="Identifier">open</span></a>, <a href="protocols/base.html#StreamSocket"><span class="Identifier">StreamSocket</span></a>
 </dl></div>
 
   </div>
@@ -161,7 +153,7 @@ function main() {
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2020-07-30 20:38:21 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2020-08-26 20:38:10 UTC</small>
       </div>
     </div>
   </div>
