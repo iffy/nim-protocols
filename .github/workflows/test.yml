@@ -1,0 +1,30 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+    branches: [master]
+  schedule:
+    - cron: '0 0 * * 1'
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        version:
+        - stable
+        os:
+        - ubuntu-latest
+        - macOS-latest
+        - windows-latest
+    steps:
+    - uses: actions/checkout@v1
+    - uses: iffy/install-nim@v3
+      with:
+        version: ${{ matrix.version }}
+    - name: Test
+      continue-on-error: ${{ matrix.version == 'devel' }}
+      run: |
+        nimble install -y
+        nimble test
