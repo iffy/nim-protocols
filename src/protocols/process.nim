@@ -30,6 +30,7 @@ proc setNonBlocking(fh: FileHandle) {.inline.} =
 proc newFileReadTransport*(fh: FileHandle, conn: Connection): FileReadTransport=
   new(result)
   result.conn = conn
+  echo "newAsyncFile: ", $fh
   result.afile = newAsyncFile(fh.AsyncFD)
   fh.setNonBlocking()
 
