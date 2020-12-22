@@ -47,15 +47,18 @@ type
     x is WriteTransport
   
   StreamConsumer* = concept x
+    ## A StreamConsumer knows how to use a StreamProvider
     x.attachTo(StreamProvider)
   
   #------------------------------------------------
   
   MessageProvider* = concept x
+    ## A MessageProvider sends/receives messages (delimited/framed/encoded in some way)
     x is ReadMessageTransport
     x is WriteMessageTransport
   
   MessageConsumer* = concept x
+    ## A MessageConsumer knows how to use a MessageProvider
     x.attachTo(MessageProvider)
 
   #------------------------------------------------
@@ -77,6 +80,7 @@ type
     x.isClosed() is bool
 
   SocketConsumer* = concept var x
+    ## Something that knows how to use an ISocket
     x.attachTo(ISocket)
 
 template assertConcept*(con: untyped, instance: untyped): untyped =

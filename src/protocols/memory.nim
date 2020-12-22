@@ -22,6 +22,7 @@ type
     closed: bool
     remote: Option[MemorySocket]
     remote_closed: bool
+    buffered: bool
   
   MemoryStream* = ref object
     ## A MemoryStream is useful for testing StreamConsumers
@@ -31,20 +32,22 @@ type
     sendCalls*: seq[string]
     pending_data*: string
     pending_reads: Deque[RecvRequest]
+    buffered: bool
 
-proc newMemorySocket*():MemorySocket =
+proc newMemorySocket*(buffered = true):MemorySocket =
   new(result)
   result.pending_recvs = initDeque[RecvRequest]()
   result.remote = none[MemorySocket]()
+  result.buffered = buffered
 
 proc pump(s: var MemorySocket) =
   ## Send and recv anything pending
   while s.pending_recvs.len > 0:
     var first = s.pending_recvs.peekFirst()
-    if s.remote_closed or first.size <= s.pending.len:
+    if s.remote_closed or (s.buffered and first.size <= s.pending.len) or (not s.buffered and s.pending.len > 0):
       discard s.pending_recvs.popFirst()
       let ret = s.pending.substr(0, first.size-1)
-      s.pending = s.pending.substr(first.size)
+      s.pending = s.pending.substr(ret.len)
       first.fut.complete(ret)
     else:
       break
@@ -114,8 +117,9 @@ proc connect*(a: MemorySocket, b: MemorySocket) =
 
 proc pump(s: var MemoryStream)
 
-proc newMemoryStream*(): MemoryStream =
+proc newMemoryStream*(buffered = true): MemoryStream =
   new(result)
+  result.buffered = buffered
   result.conn = newConnection()
   result.conn.open()
   result.pending_reads = initDeque[RecvRequest]()
@@ -127,10 +131,10 @@ proc pump(s: var MemoryStream) =
   ## Fulfil any pending reads that can be.
   while s.pending_reads.len > 0:
     var first = s.pending_reads.peekFirst()
-    if s.conn.isClosed or first.size <= s.pending_data.len:
+    if s.conn.isClosed or (s.buffered and first.size <= s.pending_data.len) or (not s.buffered and s.pending_data.len > 0):
       discard s.pending_reads.popFirst()
       let ret = s.pending_data.substr(0, first.size-1)
-      s.pending_data = s.pending_data.substr(first.size)
+      s.pending_data = s.pending_data.substr(ret.len)
       first.fut.complete(ret)
     else:
       break

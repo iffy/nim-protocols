@@ -2,7 +2,7 @@ import unittest
 
 import protocols
 import protocols/netstring
-import protocols/util
+import protocols/memory
 
 test "nsencode":
   check nsencode("apple") == "5:apple,"

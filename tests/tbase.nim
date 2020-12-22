@@ -2,7 +2,7 @@ import unittest
 
 import protocols
 import protocols/base
-import protocols/util
+import protocols/memory
 
 proc `====`(message:string) {.inline.} =
   checkpoint "==== " & message

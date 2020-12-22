@@ -1,7 +1,7 @@
 import unittest
 
 import protocols
-import protocols/util
+import protocols/memory
 
 suite "MemorySocket":
   test "concepts":
@@ -53,6 +53,15 @@ suite "MemorySocket":
     checkpoint "close"
     sock.close()
     check sock.isClosed() == true
+  
+  test "unbuffered":
+    var sock = newMemorySocket(buffered = false)
+    let s1 = sock.recv(5)
+    check s1.finished == false
+    
+    sock.put("hey")
+    check s1.finished == true
+    check s1.read() == "hey"
   
   test "closeRemote before done putting":
     var sock = newMemorySocket()
@@ -146,6 +155,14 @@ suite "MemoryStream":
     s.put("llo")
     check r1.finished
     check r1.read() == "hello"
+  
+  test "unbuffered":
+    var s = newMemoryStream(buffered = false)
+    let s1 = s.read(5)
+    check s1.finished == false
+    s.put("hey")
+    check s1.finished
+    check s1.read() == "hey"
 
   test "close before done putting":
     var stream = newMemoryStream()
