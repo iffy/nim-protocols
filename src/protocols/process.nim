@@ -31,8 +31,8 @@ proc newFileReadTransport*(fh: FileHandle, conn: Connection): FileReadTransport=
   new(result)
   result.conn = conn
   echo "newAsyncFile: ", $fh
-  result.afile = newAsyncFile(fh.AsyncFD)
   fh.setNonBlocking()
+  result.afile = newAsyncFile(fh.AsyncFD)
 
 proc read*(t: FileReadTransport, size: int): Future[string] =
   if t.conn.isClosed:
@@ -44,8 +44,8 @@ proc read*(t: FileReadTransport, size: int): Future[string] =
 proc newFileWriteTransport*(fh: FileHandle, conn: Connection): FileWriteTransport =
   new(result)
   result.conn = conn
-  result.afile = newAsyncFile(fh.AsyncFD)
   fh.setNonBlocking()
+  result.afile = newAsyncFile(fh.AsyncFD)
 
 proc send*(t: FileWriteTransport, data: string): Future[void] =
   if t.conn.isClosed:
