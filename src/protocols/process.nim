@@ -59,6 +59,8 @@ proc send*(t: FileWriteTransport, data: string): Future[void] =
 
 proc newProcessStream*(p: Process): ProcessStream =
   new(result)
+  when defined(windows):
+    {.warning: "ProcessStream does not work on Windows".}
   result.conn = newConnection()
   result.p = p
   let
